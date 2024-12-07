@@ -2,7 +2,7 @@
 <div align="center">
 
 <p align="center">
-  <a href=""><img src="" width="200" height="200" alt="阿弥陀佛"></a>
+  <a href="https://proxy.39miku.fun/Kaguya233qwq/nonebot-plugin-amitabha/refs/heads/main/images/amitabha.jpg"><img src="" width="200" height="200" alt="阿弥陀佛"></a>
 </p>
 
 ## nonebot_plugin_amitabha
