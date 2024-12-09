@@ -25,6 +25,7 @@ __plugin_meta__ = PluginMetadata(
 - 停止念佛
 - 念佛模式
 - 关闭念佛模式
+- 佛经列表
     """,
     config=Config,
     type="application",
