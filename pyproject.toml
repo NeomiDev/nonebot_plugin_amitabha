@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-amitabha"
-version = "0.1.0"
-description = "Default template for PDM package"
+version = "0.1.1"
+description = "基于nonebot2的群聊赛博念佛插件"
 authors = [
     {name = "kaguya233qwq", email = "1435608435@qq.com"},
 ]
