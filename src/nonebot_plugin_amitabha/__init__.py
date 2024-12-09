@@ -21,7 +21,10 @@ __plugin_meta__ = PluginMetadata(
     name="阿弥陀佛",
     description="基于noenbot2的群聊自动念佛插件",
     usage="""
-基本命令：
+- 念佛 [佛经名]
+- 停止念佛
+- 念佛模式
+- 关闭念佛模式
     """,
     config=Config,
     type="application",
@@ -32,8 +35,9 @@ __plugin_meta__ = PluginMetadata(
 
 FOn = on_command("fon", aliases={"念佛模式", "阿弥陀佛"})
 FOff = on_command("foff", aliases={"关闭念佛模式", "退出念佛模式"})
-StartChant = on_command("chantstart", aliases={"念经", "念佛", "念诵"})
-StopChant = on_command("chantstop", aliases={"停止念经", "停止念佛", "停止念诵"})
+StartChant = on_command("chantstart", aliases={"念佛", "念诵"})
+StopChant = on_command("chantstop", aliases={"停止念佛", "停止念诵"})
+Sutras = on_command("sutras", aliases={"佛经列表"})
 
 
 async def create_cache(group_id, group_name, bot_card) -> None:
@@ -130,6 +134,21 @@ async def stop_chant():
     # 清空加载的经文
     config.sutra = []
     await StartChant.finish("用户终止念经")
+
+
+@Sutras.handle()
+async def sutras_list():
+    """查看佛经列表"""
+    sutra_path: Path = Path(config.data_path) / "data"
+    files = [
+        file.name.replace(".txt", "")
+        for file in sutra_path.rglob("*.txt")
+        if file.is_file()
+    ]
+    msg = "佛经数据目录为空！"
+    if files:
+        msg = "\n".join(files)
+    await Sutras.finish(msg)
 
 
 driver = get_driver()
