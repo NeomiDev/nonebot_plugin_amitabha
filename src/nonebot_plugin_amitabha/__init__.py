@@ -129,7 +129,7 @@ async def start_chant(args: Message = CommandArg()):
                     break
     elif len(param_list) == 2:
         for _ in range(param_list[1]):
-            # 将此参数作为佛经名进行念诵，并默认只念诵一遍
+            # 将此参数作为佛经名进行念诵，并念诵第二个参数值的次数
             file_path: Path = Path(config.data_path) / "data" / f"{param_list[0]}.txt"
             if not file_path.exists():
                 await StartChant.finish("佛经不存在，请重新输入")
@@ -141,15 +141,15 @@ async def start_chant(args: Message = CommandArg()):
                         await StartChant.send(words.strip())
                         await asyncio.sleep(config.send_interval)
                     else:
-                        break
+                        return
 
 
 @StopChant.handle()
 async def stop_chant():
-    """停止当前的念经任务"""
+    """停止当前的念佛任务"""
     # 清空加载的经文
     config.sutra = []
-    await StartChant.finish("用户终止念经")
+    await StartChant.finish("用户终止念佛")
 
 
 @Sutras.handle()
