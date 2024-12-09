@@ -44,21 +44,22 @@ Sutras = on_command("sutras", aliases={"佛经列表"})
 async def create_cache(group_id, group_name, bot_card) -> None:
     """创建群信息缓存"""
     # 若不存在文件夹则进行创建
-    if not Path("GroupCache").exists():
-        Path("GroupCache").mkdir()
+    cache_path: Path = Path(config.data_path) / "cache"
+    if not cache_path.exists():
+        cache_path.mkdir()
     #  腾讯qq群头像原生接口
     group_profile = f"http://p.qlogo.cn/gh/{group_id}/{group_id}/640/"
     async with httpx.AsyncClient() as client:
         img = await client.get(group_profile)
-        save_path = f"GroupCache/{group_id}_{group_name}_{bot_card}.jpg"
+        save_path = cache_path / f"{group_id}_{group_name}_{bot_card}.jpg"
         with open(save_path, "wb") as f:
             f.write(img.content)
 
 
 async def load_cache(group_id: int) -> Tuple[str]:
     """按群组id读取群信息缓存"""
-    group_cache_dir = Path("GroupCache")
-    for file_path in group_cache_dir.iterdir():
+    cache_path: Path = Path(config.data_path) / "cache"
+    for file_path in cache_path.iterdir():
         if str(group_id) in file_path.name:  # 比较文件名
             matcher = re.findall(r"(\d*)_(.*)_(.*)\.jpg", file_path.name)
             if matcher:
@@ -96,8 +97,8 @@ async def fo_off(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     user_id = bot.self_id
     await bot.set_group_name(group_id=group_id, group_name=group_name)
     await bot.set_group_card(group_id=group_id, user_id=int(user_id), card=bot_card)
-    base_path = Path("GroupCache")
-    file_path: Path = base_path / filename
+    cache_path: Path = Path(config.data_path) / "cache"
+    file_path: Path = cache_path / filename
 
     await bot.call_api(
         "set_group_portrait", group_id=event.group_id, file=file_path.resolve().as_uri()
