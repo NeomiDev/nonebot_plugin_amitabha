@@ -1,0 +1,15 @@
+[project]
+name = "nonebot-plugin-amitabha"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "kaguya233qwq", email = "1435608435@qq.com"},
+]
+dependencies = ["nonebot2>=2.4.0", "httpx>=0.28.1", "nonebot-adapter-onebot>=2.4.6"]
+requires-python = "==3.10.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
