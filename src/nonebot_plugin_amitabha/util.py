@@ -25,7 +25,7 @@ async def download_sutras() -> None:
                     f.write(response.content)
                     logger.success(f"佛经 {file_name} 下载成功")
 
-    async with httpx.AsyncClient(timeout=5) as client:
+    async with httpx.AsyncClient() as client:
         tasks = []
         resp = await client.get(config.data_source)
         if resp.status_code == 200:
