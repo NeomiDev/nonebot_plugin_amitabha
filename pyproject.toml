@@ -12,4 +12,4 @@ license = {text = "MIT"}
 
 
 [tool.pdm]
-distribution = false
+distribution = true
