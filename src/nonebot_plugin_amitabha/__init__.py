@@ -18,8 +18,8 @@ from .util import check_sutras
 
 # nonebot的插件元数据标准
 __plugin_meta__ = PluginMetadata(
-    name="阿弥陀佛",
-    description="基于noenbot2的群聊自动念佛插件",
+    name="南无阿弥陀佛",
+    description="基于nonebot2的群聊自动念佛插件",
     usage="""
 - 念佛 [佛经名]
 - 停止念佛
@@ -127,6 +127,21 @@ async def start_chant(args: Message = CommandArg()):
                     await asyncio.sleep(config.send_interval)
                 else:
                     break
+    elif len(param_list) == 2:
+        for _ in range(param_list[1]):
+            # 将此参数作为佛经名进行念诵，并默认只念诵一遍
+            file_path: Path = Path(config.data_path) / "data" / f"{param_list[0]}.txt"
+            if not file_path.exists():
+                await StartChant.finish("佛经不存在，请重新输入")
+            with open(file_path, "r", encoding="utf-8") as f:
+                # 将经文加载至配置
+                config.sutra = f.readlines()
+                for words in config.sutra:
+                    if config.sutra:
+                        await StartChant.send(words.strip())
+                        await asyncio.sleep(config.send_interval)
+                    else:
+                        break
 
 
 @StopChant.handle()
