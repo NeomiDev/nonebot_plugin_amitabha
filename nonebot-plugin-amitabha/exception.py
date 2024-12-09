@@ -1,4 +1,4 @@
 class GroupCacheNotFoundError(Exception):
-    """群缓存信息未找到异常
-    """
+    """群缓存信息未找到异常"""
+
     ...
