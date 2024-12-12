@@ -1,6 +1,6 @@
 [project]
 name = "nonebot-plugin-amitabha"
-version = "0.1.3"
+version = "0.1.4"
 description = "基于nonebot2的群聊赛博念佛插件"
 authors = [
     {name = "kaguya233qwq", email = "1435608435@qq.com"},
