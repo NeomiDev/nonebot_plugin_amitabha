@@ -4,16 +4,15 @@ from pathlib import Path
 from typing import Tuple
 
 import httpx
-from nonebot import on_command, logger
+from nonebot import on_command, logger, get_driver
 from nonebot.plugin import PluginMetadata
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, Bot
 from nonebot.internal.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.adapters.onebot.v11 import Message
 
-from nonebot import get_driver
 from .exception import GroupCacheNotFoundError
-from .config import Config, config
+from .config import Config, config, store
 from .util import check_sutras
 
 # nonebot的插件元数据标准
@@ -43,23 +42,19 @@ Sutras = on_command("sutras", aliases={"佛经列表"})
 
 async def create_cache(group_id, group_name, bot_card) -> None:
     """创建群信息缓存"""
-    # 若不存在文件夹则进行创建
-    cache_path: Path = Path(config.data_path) / "cache"
-    if not cache_path.exists():
-        cache_path.mkdir()
     #  腾讯qq群头像原生接口
     group_profile = f"http://p.qlogo.cn/gh/{group_id}/{group_id}/640/"
     async with httpx.AsyncClient() as client:
         img = await client.get(group_profile)
-        save_path = cache_path / f"{group_id}_{group_name}_{bot_card}.jpg"
-        with open(save_path, "wb") as f:
-            f.write(img.content)
+        data_file = store.get_plugin_cache_file(
+            f"{group_id}_{group_name}_{bot_card}.jpg"
+        )
+        data_file.write_bytes(img.content)
 
 
 async def load_cache(group_id: int) -> Tuple[str]:
     """按群组id读取群信息缓存"""
-    cache_path: Path = Path(config.data_path) / "cache"
-    for file_path in cache_path.iterdir():
+    for file_path in config.cache_dir.iterdir():
         if str(group_id) in file_path.name:  # 比较文件名
             matcher = re.findall(r"(\d*)_(.*)_(.*)\.jpg", file_path.name)
             if matcher:
@@ -97,9 +92,7 @@ async def fo_off(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     user_id = bot.self_id
     await bot.set_group_name(group_id=group_id, group_name=group_name)
     await bot.set_group_card(group_id=group_id, user_id=int(user_id), card=bot_card)
-    cache_path: Path = Path(config.data_path) / "cache"
-    file_path: Path = cache_path / filename
-
+    file_path = store.get_plugin_cache_file(filename)
     await bot.call_api(
         "set_group_portrait", group_id=event.group_id, file=file_path.resolve().as_uri()
     )
@@ -116,7 +109,7 @@ async def start_chant(args: Message = CommandArg()):
         await StartChant.finish("参数数量不正确，用法：chantstart [佛经名] [循环次数]")
     elif len(param_list) < 2:
         # 将此参数作为佛经名进行念诵，并默认只念诵一遍
-        file_path: Path = Path(config.data_path) / "data" / f"{param_list[0]}.txt"
+        file_path: Path = store.get_plugin_data_file(f"{param_list[0]}.txt")
         if not file_path.exists():
             await StartChant.finish("佛经不存在，请重新输入")
         with open(file_path, "r", encoding="utf-8") as f:
@@ -131,7 +124,7 @@ async def start_chant(args: Message = CommandArg()):
     elif len(param_list) == 2:
         for _ in range(param_list[1]):
             # 将此参数作为佛经名进行念诵，并念诵第二个参数值的次数
-            file_path: Path = Path(config.data_path) / "data" / f"{param_list[0]}.txt"
+            file_path: Path = store.get_plugin_data_file(f"{param_list[0]}.txt")
             if not file_path.exists():
                 await StartChant.finish("佛经不存在，请重新输入")
             with open(file_path, "r", encoding="utf-8") as f:
@@ -156,7 +149,7 @@ async def stop_chant():
 @Sutras.handle()
 async def sutras_list():
     """查看佛经列表"""
-    sutra_path: Path = Path(config.data_path) / "data"
+    sutra_path: Path = config.data_dir
     files = [
         file.name.replace(".txt", "")
         for file in sutra_path.rglob("*.txt")

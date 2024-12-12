@@ -1,36 +1,29 @@
 import asyncio
-from pathlib import Path
 import httpx
 from nonebot import logger
 
-from .config import config
+from .config import config, store
 
 
 async def download_sutras() -> None:
     """从仓库下载佛经"""
 
     async def _download_file(download_url: str, file_name: str) -> None:
-        sutras_path: Path = Path(config.data_path) / "data"
-        if not sutras_path.exists():
-            sutras_path.mkdir()
-
         async with httpx.AsyncClient() as client:
             download_url = download_url.replace(
                 "https://raw.githubusercontent.com", config.reverse_proxy
             )
             response = await client.get(download_url)
             if response.status_code == 200:
-                save_path = sutras_path / file_name
-                with open(save_path, "wb") as f:
-                    f.write(response.content)
-                    logger.success(f"佛经 {file_name} 下载成功")
+                sutra = store.get_plugin_data_file(file_name)
+                sutra.write_bytes(response.content)
+                logger.success(f"佛经 {file_name} 下载成功")
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(follow_redirects=True) as client:
         tasks = []
         resp = await client.get(config.data_source)
         if resp.status_code == 200:
             file_list = resp.json()
-
             for sutra in file_list:
                 file_name = sutra.get("name")
                 download_url: str = sutra.get("download_url")
@@ -42,11 +35,7 @@ async def download_sutras() -> None:
 
 async def check_sutras() -> None:
     """检查是否需要下载佛经"""
-    root = Path(config.data_path)
-    if not root.exists():
-        root.mkdir()
-
-    sutras_path: Path = root / "data"
-    if not sutras_path.exists():
+    sutra_list = [i for i in config.data_dir.iterdir()]
+    if not sutra_list:
         logger.info("开始从仓库下载可用的佛经..")
         await download_sutras()
