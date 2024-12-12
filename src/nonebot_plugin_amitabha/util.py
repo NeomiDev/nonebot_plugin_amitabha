@@ -2,7 +2,8 @@ import asyncio
 import httpx
 from nonebot import logger
 
-from .config import config, store
+from .config import config
+import nonebot_plugin_localstore as store
 
 
 async def download_sutras() -> None:
@@ -35,7 +36,7 @@ async def download_sutras() -> None:
 
 async def check_sutras() -> None:
     """检查是否需要下载佛经"""
-    sutra_list = [i for i in config.data_dir.iterdir()]
+    sutra_list = [i for i in store.get_plugin_data_dir().iterdir()]
     if not sutra_list:
         logger.info("开始从仓库下载可用的佛经..")
         await download_sutras()

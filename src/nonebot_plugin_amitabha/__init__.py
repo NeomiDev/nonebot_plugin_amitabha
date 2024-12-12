@@ -10,9 +10,10 @@ from nonebot.adapters.onebot.v11 import GroupMessageEvent, Bot
 from nonebot.internal.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.adapters.onebot.v11 import Message
+import nonebot_plugin_localstore as store
 
 from .exception import GroupCacheNotFoundError
-from .config import Config, config, store
+from .config import Config, config
 from .util import check_sutras
 
 # nonebot的插件元数据标准
@@ -54,7 +55,7 @@ async def create_cache(group_id, group_name, bot_card) -> None:
 
 async def load_cache(group_id: int) -> Tuple[str]:
     """按群组id读取群信息缓存"""
-    for file_path in config.cache_dir.iterdir():
+    for file_path in store.get_plugin_cache_dir().iterdir():
         if str(group_id) in file_path.name:  # 比较文件名
             matcher = re.findall(r"(\d*)_(.*)_(.*)\.jpg", file_path.name)
             if matcher:
@@ -149,7 +150,7 @@ async def stop_chant():
 @Sutras.handle()
 async def sutras_list():
     """查看佛经列表"""
-    sutra_path: Path = config.data_dir
+    sutra_path: Path = store.get_plugin_data_dir()
     files = [
         file.name.replace(".txt", "")
         for file in sutra_path.rglob("*.txt")
