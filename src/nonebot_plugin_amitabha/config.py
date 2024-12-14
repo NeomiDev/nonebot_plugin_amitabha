@@ -1,7 +1,5 @@
 from pydantic import BaseModel
-from nonebot import get_plugin_config, require
-
-require("nonebot_plugin_localstore")
+from nonebot import get_plugin_config
 
 
 class Config(BaseModel):

@@ -4,12 +4,14 @@ from pathlib import Path
 from typing import Tuple
 
 import httpx
-from nonebot import on_command, logger, get_driver
+from nonebot import on_command, logger, get_driver,require
 from nonebot.plugin import PluginMetadata
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, Bot
 from nonebot.internal.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.adapters.onebot.v11 import Message
+
+require("nonebot_plugin_localstore")
 import nonebot_plugin_localstore as store
 
 from .exception import GroupCacheNotFoundError

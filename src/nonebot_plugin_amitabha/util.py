@@ -1,8 +1,10 @@
 import asyncio
 import httpx
-from nonebot import logger
+from nonebot import logger,require
 
 from .config import config
+
+require("nonebot_plugin_localstore")
 import nonebot_plugin_localstore as store
 
 
